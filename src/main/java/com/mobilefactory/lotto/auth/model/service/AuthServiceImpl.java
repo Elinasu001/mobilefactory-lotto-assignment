@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mobilefactory.lotto.auth.model.dao.AuthMapper;
 import com.mobilefactory.lotto.auth.model.dto.AuthResponse;
@@ -29,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final ParticipantMapper participantMapper;
 
     @Override
+    @Transactional
     public AuthResponse sendAuthCode(SendAuthCodeRequest request){
 
         //log.info("인증번호 발송 시작");
@@ -95,6 +97,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public AuthResponse verifyAuthCode(String phoneNumber, String authCode) {
         return null;
     }
