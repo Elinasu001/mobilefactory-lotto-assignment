@@ -11,6 +11,8 @@ import com.mobilefactory.lotto.auth.model.dao.AuthMapper;
 import com.mobilefactory.lotto.auth.model.dto.AuthResponse;
 import com.mobilefactory.lotto.auth.model.dto.SendAuthCodeRequest;
 import com.mobilefactory.lotto.auth.model.vo.PhoneAuth;
+import com.mobilefactory.lotto.auth.model.vo.PhoneAuthSearchVo;
+import com.mobilefactory.lotto.common.exception.auth.InvalidAuthCodeException;
 import com.mobilefactory.lotto.common.exception.event.AlreadyParticipatedException;
 import com.mobilefactory.lotto.common.exception.event.EventNotFoundException;
 import com.mobilefactory.lotto.event.model.dao.EventMapper;
@@ -33,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponse sendAuthCode(SendAuthCodeRequest request){
 
-        //log.info("인증번호 발송 시작");
+        //log.info("== 인증번호 발송 시작 ==");
         //log.info("요청 전화번호: {}", request.getPhoneNumber());
 
         // 1. 현재 진행중인 이벤트 조회
@@ -99,8 +101,53 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse verifyAuthCode(String phoneNumber, String authCode) {
-        return null;
+
+        //log.info("== 인증번호 검증 시작 ==");
+        //log.info("전화번호: {}, 인증번호: {}", phoneNumber, authCode);
+
+        // 1. Builder로 SearchVo 생성 후 조회
+        PhoneAuthSearchVo searchVo = PhoneAuthSearchVo.builder()
+            .phoneNumber(phoneNumber)
+            .authCode(authCode)
+            .build();
+        //log.info("검색 조건: {}", searchVo);
+
+        PhoneAuth phoneAuth = authMapper.selectByPhoneAndCode(searchVo);
+        //log.info("조회 결과: {}", phoneAuth);
+
+        // 2. 인증번호 불일치
+        if(phoneAuth == null){
+            throw new InvalidAuthCodeException("인증번호가 일치하지 않습니다.");
+        }
+
+        // 3. 만료 확인
+        Date now = new Date();
+        //log.info("현재 시간: {}", now);
+        //log.info("만료 시간: {}", phoneAuth.getExpiredAt());
+        if(now.after(phoneAuth.getExpiredAt())) {
+            throw new InvalidAuthCodeException("인증번호가 만료되었습니다.");
+        }
+        //log.info("== 유효한 인증번호 ==");
+
+        // 4. 인증 완료 처리
+        int updateResult = authMapper.updateVerified(phoneAuth.getAuthId());
+        //log.info("업데이트 결과: {} (1이면 성공)", updateResult);
+        if (updateResult != 1) {
+            throw new RuntimeException("인증 완료 처리 실패");
+        }
+        //log.info("== 인증 완료 처리 성공 ==");
+
+        // 5. 응답
+        AuthResponse response = AuthResponse.builder()
+            .authId(phoneAuth.getAuthId())
+            .isVerified(true)
+            .expiredAt(phoneAuth.getExpiredAt())
+            .build();
+        //log.info("응답 데이터: {}", response);
+
+        return response;
     }
+
 
     // 6자리 랜덤 숫자
     private String generateAuthCode() {

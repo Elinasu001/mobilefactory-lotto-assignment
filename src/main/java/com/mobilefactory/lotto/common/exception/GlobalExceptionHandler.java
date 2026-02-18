@@ -116,23 +116,23 @@ public class GlobalExceptionHandler {
     }
 
     /* ===================== Validation ===================== */
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<ResponseData<Object>> handleValidationException(
-//            MethodArgumentNotValidException e) {
-//
-//        Map<String, String> errors = new HashMap<>();
-//        e.getBindingResult().getAllErrors().forEach(error -> {
-//            String fieldName = ((FieldError) error).getField();
-//            String errorMessage = error.getDefaultMessage();
-//            errors.put(fieldName, errorMessage);
-//        });
-//
-//        log.warn("입력값 검증 실패: {}", errors);
-//        return ResponseData.failure(
-//                "입력값이 올바르지 않습니다: " + errors,
-//                HttpStatus.BAD_REQUEST
-//        );
-//    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ResponseData<Object>> handleValidationException(
+            MethodArgumentNotValidException e) {
+
+        Map<String, String> errors = new HashMap<>();
+        e.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        log.warn("입력값 검증 실패: {}", errors);
+        return ResponseData.failure(
+                "입력값이 올바르지 않습니다: " + errors,
+                HttpStatus.BAD_REQUEST
+        );
+    }
 
     /* ===================== 공통 예외 ===================== */
     @ExceptionHandler(IllegalArgumentException.class)
