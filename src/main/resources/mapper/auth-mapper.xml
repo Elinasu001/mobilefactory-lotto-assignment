@@ -5,7 +5,7 @@
 <mapper namespace="com.mobilefactory.lotto.auth.model.dao.AuthMapper">
 
     <!-- ResultMap -->
-    <resultMap id="phoneAuthResultMap" type="com.mobilefactory.lotto.auth.model.vo.PhoneAuth">
+    <resultMap id="phoneAuthResultMap" type="PhoneAuth">
         <id property="authId" column="AUTH_ID"/>
         <result property="phoneNumber" column="PHONE_NUMBER"/>
         <result property="authCode" column="AUTH_CODE"/>
@@ -15,7 +15,7 @@
     </resultMap>
 
     <!-- 인증번호 저장 -->
-    <insert id="insertPhoneAuth" parameterType="com.mobilefactory.lotto.auth.model.vo.PhoneAuth">
+    <insert id="insertPhoneAuth" parameterType="PhoneAuth">
         <selectKey keyProperty="authId" resultType="long" order="BEFORE">
             SELECT SEQ_PHONE_AUTH.NEXTVAL FROM DUAL
         </selectKey>
@@ -39,5 +39,33 @@
                )
     </insert>
 
-    
+    <!-- 전화번호 + 인증번호로 조회 -->
+    <select id="selectByPhoneAndCode"
+            parameterType="PhoneAuthSearchVo"
+            resultMap="phoneAuthResultMap">
+        SELECT * FROM MF_PHONE_AUTH
+         WHERE 
+               PHONE_NUMBER = #{phoneNumber}
+           AND 
+               AUTH_CODE = #{authCode}
+           AND 
+               EXPIRED_AT &gt; SYSDATE
+           AND 
+               IS_VERIFIED = 'N'
+         ORDER 
+            BY 
+               CREATED_AT DESC
+        FETCH FIRST 1 ROW ONLY
+    </select>
+
+    <!-- 인증 완료 처리 -->
+    <update id="updateVerified" parameterType="long">
+        UPDATE 
+               MF_PHONE_AUTH
+           SET 
+               IS_VERIFIED = 'Y'
+         WHERE 
+               AUTH_ID = #{authId}
+    </update>
+
 </mapper>

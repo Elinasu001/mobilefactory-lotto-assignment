@@ -30,6 +30,10 @@
          FETCH FIRST 1 ROW ONLY
     </select>
 
-
+    <select id="selectById" parameterType="long" resultMap="eventResultMap">
+        SELECT * FROM MF_EVENT
+         WHERE 
+               EVENT_ID = #{eventId}
+    </select>
 
 </mapper>
