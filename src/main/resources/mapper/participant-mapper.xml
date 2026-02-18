@@ -32,5 +32,39 @@
           FROM DUAL
     </select>
 
+    <select id="getNextParticipantNo" parameterType="long" resultType="int">
+        SELECT 
+               NVL(MAX(PARTICIPANT_NO), 0) + 1
+          FROM 
+               MF_PARTICIPANT
+         WHERE 
+               EVENT_ID = #{eventId}
+    </select>
+
+    <insert id="insertParticipant" parameterType="Participant">
+        <selectKey keyProperty="participantId" resultType="long" order="BEFORE">
+            SELECT SEQ_PARTICIPANT.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT
+          INTO
+               MF_PARTICIPANT
+               (
+               PARTICIPANT_ID
+             , EVENT_ID
+             , PHONE_NUMBER
+             , PARTICIPANT_NO
+             , LOTTO_NUMBERS
+             , IS_WINNER
+               )
+               VALUES
+               (
+               #{participantId}
+             , #{eventId}
+             , #{phoneNumber}
+             , #{participantNo}
+             , #{lottoNumbers}
+             , 'N'
+               )
+    </insert>
 
 </mapper>
