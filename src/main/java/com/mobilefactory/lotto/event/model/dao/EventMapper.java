@@ -6,6 +6,8 @@ import com.mobilefactory.lotto.event.model.vo.Event;
 
 @Mapper
 public interface EventMapper {
+    // 현재 진행중인 이벤트 조회
     Event selectActiveEvent();
+    // 이벤트 ID로 조회
     Event selectById(Long eventId);
 }

@@ -58,6 +58,25 @@
         FETCH FIRST 1 ROW ONLY
     </select>
 
+        <!-- 전화번호 + 인증번호로 조회 (인증 완료된 경우) -->
+    <select id="selectVerifiedByPhoneAndCode"
+            parameterType="PhoneAuthSearchVo"
+            resultMap="phoneAuthResultMap">
+        SELECT * FROM MF_PHONE_AUTH
+         WHERE 
+               PHONE_NUMBER = #{phoneNumber}
+           AND 
+               AUTH_CODE = #{authCode}
+           AND 
+               EXPIRED_AT &gt; SYSDATE
+           AND 
+               IS_VERIFIED = 'Y'
+         ORDER 
+            BY 
+               CREATED_AT DESC
+        FETCH FIRST 1 ROW ONLY
+    </select>
+
     <!-- 인증 완료 처리 -->
     <update id="updateVerified" parameterType="long">
         UPDATE 

@@ -14,6 +14,9 @@ public interface AuthMapper {
     // 전화번호 + 인증번호로 조회 (단일 VO로)
     PhoneAuth selectByPhoneAndCode(PhoneAuthSearchVo searchVo);
 
+    // 전화번호 + 인증번호로 조회 (인증 완료된 경우)
+    PhoneAuth selectVerifiedByPhoneAndCode(PhoneAuthSearchVo searchVo);
+
     // 인증 완료 처리
     int updateVerified(Long authId);
 }

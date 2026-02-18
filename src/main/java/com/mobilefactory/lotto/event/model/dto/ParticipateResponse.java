@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParticipateResponse {
-    private Long participantId;
-    private Integer participantNo;
-    private String lottoNumbers;
-    private Date participatedAt;
+    private Long participantId;     // 참가자ID (PK)
+    private Integer participantNo;  // 이벤트 내에서의 참가자 순번
+    private String lottoNumbers;    // 로또 번호
+    private Date participatedAt;    // 참여 일시
 }

@@ -12,15 +12,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Event {
-    private Long eventId;
-    private String eventName;
-    private Date startDate;
-    private Date endDate;
-    private Date announceStart;
-    private Date announceEnd;
-    private Integer maxParticipants;
-    private Integer totalWinners;
-    private String status;
-    private Date createdAt;
-    private Date updatedAt;
+    private Long eventId;               // 이벤트ID (PK)
+    private String eventName;           // 이벤트명
+    private Date startDate;             // 이벤트 시작일
+    private Date endDate;               // 이벤트 종료일
+    private Date announceStart;         // 당첨자 발표 시작일
+    private Date announceEnd;           // 당첨자 발표 종료일
+    private Integer maxParticipants;    // 최대 참여자 수
+    private Integer totalWinners;       // 총 당첨자 수
+    private String status;              // 이벤트 상태 (예: ACTIVE, INACTIVE, ANNOUNCED)
+    private Date createdAt;             // 생성 일시
+    private Date updatedAt;             // 업데이트 일시
 }
