@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
         if(alreadyParticipated){
             throw new AlreadyParticipatedException("이미 참여한 번호입니다.");
         }
-        log.info("중복 참여 여부 결과: {}", alreadyParticipated);
+        //log.info("중복 참여 여부 결과: {}", alreadyParticipated);
 
         // 3. 인증번호 생성
         String authCode = generateAuthCode();
@@ -69,16 +69,15 @@ public class AuthServiceImpl implements AuthService {
             .expiredAt(expiredAt)
             .build();
 
-        log.info("저장할 PhoneAuth 객체: {}", phoneAuth);
+        //log.info("저장할 PhoneAuth 객체: {}", phoneAuth);
 
         int insertResult = authMapper.insertPhoneAuth(phoneAuth);
-        log.info("인증 정보 저장 결과: {}", insertResult);
-        log.info("저장 후 authId: {}", phoneAuth.getAuthId());
-
+        //log.info("인증 정보 저장 결과: {}", insertResult);
+        //log.info("저장 후 authId: {}", phoneAuth.getAuthId());
         if(insertResult != 1){
             throw new RuntimeException("인증 정보 저장에 실패했습니다.");
         }
-        log.info(" DB 저장 성공");
+        //log.info(" DB 저장 성공");
 
         // 6. Mock SMS
         sendMockSms(request.getPhoneNumber(), authCode);
@@ -90,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
             .expiredAt(expiredAt)
             .build();
 
-        log.info("응답 데이터: {}", response);
+        //log.info("응답 데이터: {}", response);
 
         return response;
     }
