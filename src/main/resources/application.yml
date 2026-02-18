@@ -1,13 +1,9 @@
 spring:
   application:
-    name: demo
+    name: lotto
   profiles:
     include:
     - private
-
-springdoc:
-  swagger-ui:
-    path: /ui.html
     
 server:
   port: 8080
@@ -17,7 +13,7 @@ mybatis:
   configuration:
     jdbc-type-for-null: VARCHAR
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  type-aliases-package: com.mobilefactory.lotto.*.model.vo, com.mobilefactory.lotto.*.model.dto
+  type-aliases-package: com.kh.even.back.*.model.vo, com.kh.even.back.*.model.dto
   mapper-locations: classpath:mapper/**/*.xml
 
 
