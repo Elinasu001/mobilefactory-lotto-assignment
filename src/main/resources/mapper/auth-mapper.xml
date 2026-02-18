@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobilefactory.lotto.auth.model.dao.AuthMapper">
+
+    <!-- ResultMap -->
+    <resultMap id="phoneAuthResultMap" type="com.mobilefactory.lotto.auth.model.vo.PhoneAuth">
+        <id property="authId" column="AUTH_ID"/>
+        <result property="phoneNumber" column="PHONE_NUMBER"/>
+        <result property="authCode" column="AUTH_CODE"/>
+        <result property="isVerified" column="IS_VERIFIED"/>
+        <result property="expiredAt" column="EXPIRED_AT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
+    <!-- 인증번호 저장 -->
+    <insert id="insertPhoneAuth" parameterType="com.mobilefactory.lotto.auth.model.vo.PhoneAuth">
+        <selectKey keyProperty="authId" resultType="long" order="BEFORE">
+            SELECT SEQ_PHONE_AUTH.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT
+          INTO
+               MF_PHONE_AUTH
+               (
+               AUTH_ID
+             , PHONE_NUMBER
+             , AUTH_CODE
+             , IS_VERIFIED
+             , EXPIRED_AT
+               )
+               VALUES
+               (
+               #{authId}
+             , #{phoneNumber}
+             , #{authCode}
+             , 'N'
+             , #{expiredAt}
+               )
+    </insert>
+
+    
+</mapper>
