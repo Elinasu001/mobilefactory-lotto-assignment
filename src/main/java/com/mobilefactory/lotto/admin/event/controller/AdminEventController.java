@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilefactory.lotto.admin.event.model.dto.CreateEventRequest;
 import com.mobilefactory.lotto.admin.event.model.dto.ForceWinnerGenerationRequest;
 import com.mobilefactory.lotto.admin.event.model.service.AdminEventService;
 import com.mobilefactory.lotto.common.ResponseData;
@@ -21,6 +22,17 @@ public class AdminEventController {
 
     private final AdminEventService adminEventService;
 
+    /**
+     * 이벤트 생성
+     */
+    @PostMapping("/event")
+    public ResponseEntity<ResponseData<Event>> createEvent(
+            @Valid @RequestBody CreateEventRequest request) {
+
+        Event event = adminEventService.createEvent(request);
+
+        return ResponseData.created(event, "이벤트가 생성되었습니다.");
+    }
 
     /***
      * 1등 지정 번호 설정
