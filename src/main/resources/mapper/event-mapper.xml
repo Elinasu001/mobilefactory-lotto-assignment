@@ -13,6 +13,8 @@
         <result property="announceEnd" column="ANNOUNCE_END"/>
         <result property="maxParticipants" column="MAX_PARTICIPANTS"/>
         <result property="totalWinners" column="TOTAL_WINNERS"/>
+        <result property="winningNumbers" column="WINNING_NUMBERS"/>
+        <result property="forcedWinnerPhone" column="FORCED_WINNER_PHONE"/>
         <result property="status" column="STATUS"/>
         <result property="createdAt" column="CREATED_AT"/>
         <result property="updatedAt" column="UPDATED_AT"/>

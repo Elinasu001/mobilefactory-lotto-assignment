@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobilefactory.lotto.admin.event.model.dao.AdminEventMapper">
+
+    <!-- 1등 지정 번호 업데이트 -->
+    <update id="updateForceWinnerPhone" parameterType="ForceWinnerGenerationRequest">
+        UPDATE 
+               MF_EVENT
+           SET 
+               FORCED_WINNER_PHONE = #{forcedWinnerPhone},
+               UPDATED_AT = SYSDATE
+         WHERE 
+               EVENT_ID = #{eventId}
+    </update>
+
+</mapper>
