@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mobilefactory.lotto.admin.event.model.dao.AdminEventMapper;
+import com.mobilefactory.lotto.admin.event.model.dto.CreateEventRequest;
 import com.mobilefactory.lotto.admin.event.model.dto.ForceWinnerGenerationRequest;
 import com.mobilefactory.lotto.common.exception.event.EventNotFoundException;
 import com.mobilefactory.lotto.event.model.dao.EventMapper;
@@ -19,6 +20,45 @@ public class AdminEventServiceImpl implements AdminEventService{
     private final AdminEventMapper adminEventMapper;
     private final EventMapper eventMapper;
 
+
+    /**
+     * 이벤트 생성
+     */
+    @Override
+    @Transactional
+    public Event createEvent(CreateEventRequest request) {
+
+        //log.info("이벤트 생성 시작");
+        //log.info("이벤트명: {}", request.getEventName());
+
+        // 1. Event 객체 생성
+        Event event = Event.builder()
+            .eventName(request.getEventName())
+            .startDate(request.getStartDate())
+            .endDate(request.getEndDate())
+            .announceStart(request.getAnnounceStart())
+            .announceEnd(request.getAnnounceEnd())
+            .maxParticipants(request.getMaxParticipants())
+            .totalWinners(request.getTotalWinners())
+            .status("ACTIVE")
+            .build();
+
+        // 2. 이벤트 생성
+        int inserted = adminEventMapper.insertEvent(event);
+
+        if(inserted == 0){
+            throw new RuntimeException("이벤트 생성에 실패하였습니다.");
+        }
+
+        //log.info("이벤트 생성 완료 - ID: {}", event.getEventId());
+
+        return event;
+    }
+
+
+    /**
+     * 1등 지정 번호 설정
+     */
     @Override
     @Transactional
     public Event forceGenerateWinner(ForceWinnerGenerationRequest request) {
