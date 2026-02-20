@@ -25,16 +25,16 @@ public class AdminEventServiceImpl implements AdminEventService{
 
         Long eventId = request.getEventId();
         String forcedWinnerPhone = request.getForcedWinnerPhone();
-        log.info("당첨자 강제 생성 시작");
-        log.info("이멘트 ID: {}", eventId);
-        log.info("1등 지정 번호: {}", forcedWinnerPhone);
+        //log.info("당첨자 강제 생성 시작");
+        //log.info("이멘트 ID: {}", eventId);
+        //log.info("1등 지정 번호: {}", forcedWinnerPhone);
 
         // 이벤트 존재 확인
         Event activeEvent = eventMapper.selectActiveEvent();
         if(activeEvent == null){
             throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
         }
-        log.info("현재 진행중인 이벤트 : {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
+        //log.info("현재 진행중인 이벤트 : {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
 
         // 1등 지정 번호 업데이트
         int updated = adminEventMapper.updateForceWinnerPhone(
@@ -48,7 +48,7 @@ public class AdminEventServiceImpl implements AdminEventService{
             throw new RuntimeException("1등 지정 번호 업데이트에 실패하였습니다.");
         }
 
-        log.info("1등 지정 번호 설정 완료");
+        //log.info("1등 지정 번호 설정 완료");
 
         return eventMapper.selectById(eventId);
     }
