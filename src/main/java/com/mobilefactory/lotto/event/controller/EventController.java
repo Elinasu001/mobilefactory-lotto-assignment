@@ -38,13 +38,6 @@ public class EventController {
     /**
      * 진행중인 이벤트 조회
      */
-    // @GetMapping("/{eventId}")
-    // public ResponseEntity<ResponseData<Event>> getActiveEvent(
-    //     @PathVariable("eventId") Long eventId) {
-    //     Event activeEvent = eventService.getActiveEvent(eventId);
-    //     return ResponseData.ok(activeEvent, "현재 진행중인 이벤트입니다.");
-    // }
-
     @GetMapping("/{eventId}")
     public ResponseEntity<ResponseData<EventPublicResponse>> getPublicActiveEvent(
         @PathVariable("eventId") Long eventId) {
