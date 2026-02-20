@@ -12,6 +12,7 @@ import com.mobilefactory.lotto.common.exception.event.EventNotFoundException;
 import com.mobilefactory.lotto.common.exception.event.ExceedMaxParticipantsException;
 import com.mobilefactory.lotto.event.model.dao.EventMapper;
 import com.mobilefactory.lotto.event.model.dao.ParticipantMapper;
+import com.mobilefactory.lotto.event.model.dto.EventPublicResponse;
 import com.mobilefactory.lotto.event.model.dto.ParticipateRequest;
 import com.mobilefactory.lotto.event.model.dto.ParticipateResponse;
 import com.mobilefactory.lotto.event.model.vo.Event;
@@ -133,6 +134,28 @@ public class EventServiceImpl implements EventService {
             throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
         }
         return activeEvent;
+    }
+
+    /**
+     * 진행중인 이벤트 조회 - 민감 정보 제외
+     */
+    @Override
+    public EventPublicResponse getPublicActiveEvent(Long eventId) {
+        Event publicActiveEvent = eventMapper.selectActiveEvent(eventId);
+        if(publicActiveEvent == null){
+            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
+        }
+        return EventPublicResponse.builder()
+            .eventId(publicActiveEvent.getEventId())
+            .eventName(publicActiveEvent.getEventName())
+            .startDate(publicActiveEvent.getStartDate())
+            .endDate(publicActiveEvent.getEndDate())
+            .announceStart(publicActiveEvent.getAnnounceStart())
+            .announceEnd(publicActiveEvent.getAnnounceEnd())
+            .maxParticipants(publicActiveEvent.getMaxParticipants())
+            .totalWinners(publicActiveEvent.getTotalWinners())
+            .status(publicActiveEvent.getStatus())
+            .build();
     }
 
     // Mock SMS 발송 + DB 저장
