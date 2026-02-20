@@ -4,6 +4,9 @@ spring:
   profiles:
     include:
     - private
+  jackson:
+    time-zone: Asia/Seoul
+    date-format: yyyy-MM-dd HH:mm:ss
 
 springdoc:
   swagger-ui:
