@@ -16,7 +16,6 @@
         <result property="createdAt" column="CREATED_AT"/>
     </resultMap>
 
-
     <!-- 당첨자 존재 여부 확인 -->
     <select id="existsWinners" parameterType="long" resultType="boolean">
         SELECT 
@@ -92,6 +91,17 @@
              , LOTTO_NUMBERS = #{lottoNumbers}
          WHERE
                PARTICIPANT_ID = #{participantId}
+    </update>
+
+    <!-- 이벤트 상태 업데이트 -->
+    <update id="updateEventStatus" parameterType="EventUpdateVo">
+        UPDATE 
+               MF_EVENT
+           SET 
+               STATUS = #{status}
+             , UPDATED_AT = SYSDATE
+         WHERE 
+               EVENT_ID = #{eventId}
     </update>
 
 </mapper>

@@ -12,8 +12,8 @@ import com.mobilefactory.lotto.event.model.vo.ParticipantSearchVo;
 @Mapper
 public interface AdminWinnerMapper {
 
-    // 이벤트 조회
-    //Event selectEventById(Long eventId);
+    // 마감된 이벤트 조회
+    //Event selectClosedEvent(Long eventId);
 
     // 당첨 번호 업데이트
     int updateWinningNumbers(EventUpdateVo updateVo);
@@ -32,4 +32,7 @@ public interface AdminWinnerMapper {
 
     // 당첨 정보 업데이트
     int updateWinner(ParticipantUpdateVo updateVo);
+
+    // 이벤트 상태 업데이트
+    int updateEventStatus(EventUpdateVo updateVo);
 }
