@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mobilefactory.lotto.admin.event.model.dao.AdminEventMapper;
 import com.mobilefactory.lotto.admin.event.model.dto.CreateEventRequest;
 import com.mobilefactory.lotto.admin.event.model.dto.ForceWinnerGenerationRequest;
-import com.mobilefactory.lotto.common.exception.event.EventNotFoundException;
 import com.mobilefactory.lotto.event.model.dao.EventMapper;
+import com.mobilefactory.lotto.event.model.service.EventService;
 import com.mobilefactory.lotto.event.model.vo.Event;
 
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class AdminEventServiceImpl implements AdminEventService{
+
     private final AdminEventMapper adminEventMapper;
     private final EventMapper eventMapper;
-
+    private final EventService eventService;
 
     /**
      * 이벤트 생성
@@ -70,10 +71,7 @@ public class AdminEventServiceImpl implements AdminEventService{
         //log.info("1등 지정 번호: {}", forcedWinnerPhone);
 
         // 1. 이벤트 존재 확인
-        Event activeEvent = eventMapper.selectActiveEvent();
-        if(activeEvent == null){
-            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
-        }
+        eventService.getActiveEvent(eventId);
         //log.info("현재 진행중인 이벤트 : {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
 
         // 2. 1등 지정 번호 업데이트

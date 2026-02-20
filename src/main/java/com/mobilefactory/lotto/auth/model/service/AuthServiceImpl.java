@@ -14,10 +14,9 @@ import com.mobilefactory.lotto.auth.model.vo.PhoneAuth;
 import com.mobilefactory.lotto.auth.model.vo.PhoneAuthSearchVo;
 import com.mobilefactory.lotto.common.exception.auth.InvalidAuthCodeException;
 import com.mobilefactory.lotto.common.exception.event.AlreadyParticipatedException;
-import com.mobilefactory.lotto.common.exception.event.EventNotFoundException;
 import com.mobilefactory.lotto.event.model.dao.EventMapper;
 import com.mobilefactory.lotto.event.model.dao.ParticipantMapper;
-import com.mobilefactory.lotto.event.model.vo.Event;
+import com.mobilefactory.lotto.event.model.service.EventService;
 import com.mobilefactory.lotto.event.model.vo.ParticipantSearchVo;
 
 import lombok.RequiredArgsConstructor;
@@ -30,26 +29,28 @@ public class AuthServiceImpl implements AuthService {
     private final AuthMapper authMapper;
     private final EventMapper eventMapper;
     private final ParticipantMapper participantMapper;
-
+    private final EventService eventService;
+    /**
+     * 인증번호 발송
+     */
     @Override
     @Transactional
     public AuthResponse sendAuthCode(SendAuthCodeRequest request){
 
+        Long eventId = request.getEventId();
+        String phoneNumber = request.getPhoneNumber();
         //log.info("== 인증번호 발송 시작 ==");
-        //log.info("요청 전화번호: {}", request.getPhoneNumber());
+        //log.info("요청 전화번호: {}", phoneNumber);
 
-        // 1. 현재 진행중인 이벤트 조회
-        Event activeEvent = eventMapper.selectActiveEvent();
-        if(activeEvent == null){
-            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
-        }
+        // 1. 현재 진행중인 이벤트 조회 (공통 서비스 사용)
+        eventService.getActiveEvent(eventId);
         //log.info("현재 진행중인 이벤트: {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
 
         // 2. 중복 참여 확인
         boolean alreadyParticipated = participantMapper.existsByEventAndPhone(
             ParticipantSearchVo.builder()
-                .eventId(activeEvent.getEventId())
-                .phoneNumber(request.getPhoneNumber())
+                .eventId(eventId)
+                .phoneNumber(phoneNumber)
                 .build()
         );
         if(alreadyParticipated){
@@ -67,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 5. DB 저장
         PhoneAuth phoneAuth = PhoneAuth.builder()
-            .phoneNumber(request.getPhoneNumber())
+            .phoneNumber(phoneNumber)
             .authCode(authCode)
             .isVerified("N")
             .expiredAt(expiredAt)
@@ -84,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
         //log.info(" DB 저장 성공");
 
         // 6. Mock SMS
-        sendMockSms(request.getPhoneNumber(), authCode);
+        sendMockSms(phoneNumber, authCode);
 
         // 7. 응답 생성
         AuthResponse response = AuthResponse.builder()

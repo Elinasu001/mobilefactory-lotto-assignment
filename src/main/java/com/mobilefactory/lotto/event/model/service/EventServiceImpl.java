@@ -12,6 +12,7 @@ import com.mobilefactory.lotto.common.exception.event.EventNotFoundException;
 import com.mobilefactory.lotto.common.exception.event.ExceedMaxParticipantsException;
 import com.mobilefactory.lotto.event.model.dao.EventMapper;
 import com.mobilefactory.lotto.event.model.dao.ParticipantMapper;
+import com.mobilefactory.lotto.event.model.dto.EventPublicResponse;
 import com.mobilefactory.lotto.event.model.dto.ParticipateRequest;
 import com.mobilefactory.lotto.event.model.dto.ParticipateResponse;
 import com.mobilefactory.lotto.event.model.vo.Event;
@@ -34,12 +35,15 @@ public class EventServiceImpl implements EventService {
     private final AuthMapper authMapper;
     private final SmsLogMapper smsLogMapper;
 
+    /***
+     * 이벤트 참여
+     */
     @Override
     @Transactional
     public ParticipateResponse participate(ParticipateRequest request) {
 
         //log.info("== 참여 처리 시작 ==");
-
+        Long eventId = request.getEventId();
         String phoneNumber = request.getPhoneNumber();
         String authCode = request.getAuthCode();
 
@@ -58,13 +62,9 @@ public class EventServiceImpl implements EventService {
         //log.info("휴대폰 인증 완료: {}", phoneAuth);
 
         // 2. 현재 진행중인 이벤트 조회
-        Event activeEvent = eventMapper.selectActiveEvent();
-        if(activeEvent == null){
-            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
-        }
+        Event activeEvent = getActiveEvent(eventId);
         //log.info("현재 진행중인 이벤트: {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
 
-        Long eventId = activeEvent.getEventId();
 
         // 3. 중복 참여 재확인
         boolean alreadyParticipated = participantMapper.existsByEventAndPhone(
@@ -124,6 +124,39 @@ public class EventServiceImpl implements EventService {
         return participateResponse;
     }
 
+    /**
+     * 진행중인 이벤트 조회
+     */
+    @Override
+    public Event getActiveEvent(Long eventId) {
+        Event activeEvent = eventMapper.selectActiveEvent(eventId);
+        if(activeEvent == null){
+            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
+        }
+        return activeEvent;
+    }
+
+    /**
+     * 진행중인 이벤트 조회 - 민감 정보 제외
+     */
+    @Override
+    public EventPublicResponse getPublicActiveEvent(Long eventId) {
+        Event publicActiveEvent = eventMapper.selectActiveEvent(eventId);
+        if(publicActiveEvent == null){
+            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
+        }
+        return EventPublicResponse.builder()
+            .eventId(publicActiveEvent.getEventId())
+            .eventName(publicActiveEvent.getEventName())
+            .startDate(publicActiveEvent.getStartDate())
+            .endDate(publicActiveEvent.getEndDate())
+            .announceStart(publicActiveEvent.getAnnounceStart())
+            .announceEnd(publicActiveEvent.getAnnounceEnd())
+            .maxParticipants(publicActiveEvent.getMaxParticipants())
+            .totalWinners(publicActiveEvent.getTotalWinners())
+            .status(publicActiveEvent.getStatus())
+            .build();
+    }
 
     // Mock SMS 발송 + DB 저장
     private void sendParticipationSms(Participant participant) {
