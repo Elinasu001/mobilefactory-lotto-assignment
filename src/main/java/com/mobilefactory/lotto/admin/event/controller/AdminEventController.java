@@ -41,6 +41,6 @@ public class AdminEventController {
     public ResponseEntity<ResponseData<Event>> forceGenerateWinner(
     @Valid @RequestBody ForceWinnerGenerationRequest request) {
         Event updateEvent = adminEventService.forceGenerateWinner(request);
-        return ResponseData.created(updateEvent, "당첨자 S생성이 완료되었습니다.");
+        return ResponseData.created(updateEvent, "당첨자 생성이 완료되었습니다.");
     }
 }
