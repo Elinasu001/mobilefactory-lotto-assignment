@@ -21,16 +21,12 @@
     </resultMap>
 
     <!-- 현재 진행중인 이벤트 조회 -->
-    <select id="selectActiveEvent" resultMap="eventResultMap">
+    <select id="selectActiveEvent" parameterType="Long" resultMap="eventResultMap">
         SELECT * FROM MF_EVENT
-         WHERE 
+         WHERE
                STATUS = 'ACTIVE'
-           AND 
-               SYSDATE BETWEEN START_DATE AND END_DATE
-         ORDER 
-            BY 
-               EVENT_ID DESC
-         FETCH FIRST 1 ROW ONLY
+            AND
+                EVENT_ID = #{eventId}
     </select>
 
     <!-- 이벤트 ID로 조회 -->

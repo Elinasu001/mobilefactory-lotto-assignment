@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 public class SendAuthCodeRequest {
 
+    private Long eventId;
+
     @NotBlank(message = "휴대폰 번호는 필수입니다.")
     @Pattern(
         regexp = "^01[0-9]{8,9}$",

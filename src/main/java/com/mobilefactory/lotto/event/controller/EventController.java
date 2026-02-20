@@ -1,15 +1,18 @@
 package com.mobilefactory.lotto.event.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mobilefactory.lotto.common.ResponseData;
 import com.mobilefactory.lotto.event.model.dto.ParticipateRequest;
 import com.mobilefactory.lotto.event.model.dto.ParticipateResponse;
 import com.mobilefactory.lotto.event.model.service.EventService;
+import com.mobilefactory.lotto.event.model.vo.Event;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +33,18 @@ public class EventController {
         ParticipateResponse response = eventService.participate(request);
 
         return ResponseData.created(response, "이벤트 참여가 완료되었습니다.");
+    }
+
+    /**
+     * 진행중인 이벤트 조회
+     */
+    @GetMapping("/active")
+    public ResponseEntity<ResponseData<Event>> getActiveEvent(
+        @RequestParam(required = false) Long eventId) {
+        Event activeEvent = eventService.getActiveEvent(eventId);
+        if (activeEvent == null) {
+            return ResponseData.noContent();
+        }
+        return ResponseData.ok(activeEvent);
     }
 }
