@@ -7,5 +7,5 @@ public interface AuthService {
 	// 인증번호 발송
     AuthResponse sendAuthCode(SendAuthCodeRequest request);
     // 인증번호 검증
-    AuthResponse verifyAuthCode(String phoneNumber, String authCode);
+    AuthResponse verifyAuthCode(SendAuthCodeRequest request);
 }

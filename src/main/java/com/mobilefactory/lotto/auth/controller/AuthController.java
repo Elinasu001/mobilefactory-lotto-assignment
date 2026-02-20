@@ -40,10 +40,7 @@ public class AuthController {
     public ResponseEntity<ResponseData<AuthResponse>> verifyAuthCode(
             @Valid @RequestBody SendAuthCodeRequest request) {
 
-        AuthResponse response = authService.verifyAuthCode(
-            request.getPhoneNumber(),
-            request.getAuthCode()
-        );
+        AuthResponse response = authService.verifyAuthCode(request);
 
         return ResponseData.ok(response, "인증이 완료되었습니다.");
     }

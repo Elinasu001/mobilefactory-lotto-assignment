@@ -101,15 +101,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse verifyAuthCode(String phoneNumber, String authCode) {
+    public AuthResponse verifyAuthCode(SendAuthCodeRequest request) {
 
         //log.info("== 인증번호 검증 시작 ==");
-        //log.info("전화번호: {}, 인증번호: {}", phoneNumber, authCode);
+        //log.info("전화번호: {}, 인증번호: {}", request.getPhoneNumber(), request.getAuthCode());
 
         // 1. Builder로 SearchVo 생성 후 조회
         PhoneAuthSearchVo searchVo = PhoneAuthSearchVo.builder()
-            .phoneNumber(phoneNumber)
-            .authCode(authCode)
+            .phoneNumber(request.getPhoneNumber())
+            .authCode(request.getAuthCode())
             .build();
         //log.info("검색 조건: {}", searchVo);
 
