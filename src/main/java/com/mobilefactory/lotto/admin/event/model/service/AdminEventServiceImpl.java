@@ -29,14 +29,14 @@ public class AdminEventServiceImpl implements AdminEventService{
         //log.info("이멘트 ID: {}", eventId);
         //log.info("1등 지정 번호: {}", forcedWinnerPhone);
 
-        // 이벤트 존재 확인
+        // 1. 이벤트 존재 확인
         Event activeEvent = eventMapper.selectActiveEvent();
         if(activeEvent == null){
             throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
         }
         //log.info("현재 진행중인 이벤트 : {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
 
-        // 1등 지정 번호 업데이트
+        // 2. 1등 지정 번호 업데이트
         int updated = adminEventMapper.updateForceWinnerPhone(
             ForceWinnerGenerationRequest.builder()
                 .eventId(eventId)
