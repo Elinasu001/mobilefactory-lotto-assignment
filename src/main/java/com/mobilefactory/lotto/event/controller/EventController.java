@@ -2,10 +2,10 @@ package com.mobilefactory.lotto.event.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mobilefactory.lotto.common.ResponseData;
@@ -38,13 +38,10 @@ public class EventController {
     /**
      * 진행중인 이벤트 조회
      */
-    @GetMapping("/active")
+    @GetMapping("/{eventId}")
     public ResponseEntity<ResponseData<Event>> getActiveEvent(
-        @RequestParam(required = false) Long eventId) {
+        @PathVariable("eventId") Long eventId) {
         Event activeEvent = eventService.getActiveEvent(eventId);
-        if (activeEvent == null) {
-            return ResponseData.noContent();
-        }
-        return ResponseData.ok(activeEvent);
+        return ResponseData.ok(activeEvent, "현재 진행중인 이벤트입니다.");
     }
 }
