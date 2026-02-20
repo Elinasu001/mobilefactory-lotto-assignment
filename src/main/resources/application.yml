@@ -11,13 +11,12 @@ springdoc:
     
 server:
   port: 8080
-    
- 
+
 mybatis:
   configuration:
     jdbc-type-for-null: VARCHAR
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  type-aliases-package: com.mobilefactory.lotto.*.model.vo, com.mobilefactory.lotto.*.model.dto
+  type-aliases-package: com.mobilefactory.lotto.**
   mapper-locations: classpath:mapper/**/*.xml
 
 
