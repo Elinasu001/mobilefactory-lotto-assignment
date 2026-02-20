@@ -43,12 +43,12 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         //log.info("이벤트 ID: {}", eventId);
         //log.info("1등 지정 번호: {}", forcedWinnerPhone);
 
-        // 1. 이벤트 존재 확인
-        Event activeEvent = eventMapper.selectActiveEvent();
-        if(activeEvent == null){
-            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
+        // 1. 마감된 이벤트 조회
+        Event closedEvent  = eventMapper.selectClosedEvent(eventId);
+        if(closedEvent == null){
+            throw new EventNotFoundException("마감된 이벤트가 없습니다.");
         }
-        //log.info("현재 진행중인 이벤트 : {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
+        //log.info("현재 마감된 이벤트 : {} (ID: {})", closedEvent.getEventName(), closedEvent.getEventId());
 
         // 2. 이미 당첨자가 생성되었는지 확인
         boolean winnersExist = adminWinnerMapper.existsWinners(eventId);
@@ -218,6 +218,17 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         //log.info("당첨자 생성 완료");
         //log.info("정답 번호: {}", winningNumbers);
         //log.info("1등: {}명, 2등: {}명, 3등: {}명, 4등: {}명", rank1Count, rank2Count, rank3Count, rank4Count);
+
+        // 10. 이벤트 상태  ANNOUNCED로 변경
+        int updatedStatus = adminWinnerMapper.updateEventStatus(
+            EventUpdateVo.builder()
+                .eventId(eventId)
+                .status("ANNOUNCED")
+                .build()
+        );
+        if(updatedStatus == 0){
+            throw new RuntimeException("이벤트 상태 업데이트에 실패했습니다.");
+        }
 
         WinnerGenerationResponse response = WinnerGenerationResponse.builder()
             .eventId(eventId)

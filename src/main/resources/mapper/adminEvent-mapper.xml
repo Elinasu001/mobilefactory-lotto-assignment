@@ -55,4 +55,6 @@
                EVENT_ID = #{eventId}
     </update>
 
+
+
 </mapper>
