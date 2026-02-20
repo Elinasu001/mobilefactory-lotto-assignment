@@ -10,7 +10,7 @@ import com.mobilefactory.lotto.event.model.vo.Participant;
 import com.mobilefactory.lotto.event.model.vo.ParticipantSearchVo;
 
 @Mapper
-public interface AmindWinnerMapper {
+public interface AdminWinnerMapper {
 
     // 이벤트 조회
     //Event selectEventById(Long eventId);

@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParticipantSearchVo {
-    private Long eventId;
-    private String phoneNumber;
+    private Long eventId;       // 이벤트 ID(PK)
+    private String phoneNumber; // 참여자 전화번호
+    private Integer startNo;    // 시작 번호 (페이지네이션용)
+    private Integer endNo;      // 종료 번호 (페이지네이션용)
 }
