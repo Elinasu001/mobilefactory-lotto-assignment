@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobilefactory.lotto.event.model.dao.ParticipantMapper">
+
+    <resultMap id="participantResultMap" type="com.mobilefactory.lotto.event.model.vo.Participant">
+        <id property="participantId" column="PARTICIPANT_ID"/>
+        <result property="eventId" column="EVENT_ID"/>
+        <result property="phoneNumber" column="PHONE_NUMBER"/>
+        <result property="participantNo" column="PARTICIPANT_NO"/>
+        <result property="lottoNumbers" column="LOTTO_NUMBERS"/>
+        <result property="isWinner" column="IS_WINNER"/>
+        <result property="prizeRank" column="PRIZE_RANK"/>
+        <result property="participatedAt" column="PARTICIPATED_AT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
+    <select id="existsByEventAndPhone"
+            parameterType="ParticipantSearchVo"
+            resultType="boolean">
+        SELECT
+               CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM MF_PARTICIPANT
+                        WHERE EVENT_ID = #{eventId}
+                        AND PHONE_NUMBER = #{phoneNumber}
+                    )
+                THEN 1 ELSE 0
+                END
+          FROM DUAL
+    </select>
+
+    <select id="getNextParticipantNo" parameterType="long" resultType="int">
+        SELECT 
+               NVL(MAX(PARTICIPANT_NO), 0) + 1
+          FROM 
+               MF_PARTICIPANT
+         WHERE 
+               EVENT_ID = #{eventId}
+    </select>
+
+    <insert id="insertParticipant" parameterType="Participant">
+        <selectKey keyProperty="participantId" resultType="long" order="BEFORE">
+            SELECT SEQ_PARTICIPANT.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT
+          INTO
+               MF_PARTICIPANT
+               (
+               PARTICIPANT_ID
+             , EVENT_ID
+             , PHONE_NUMBER
+             , PARTICIPANT_NO
+             , LOTTO_NUMBERS
+             , IS_WINNER
+               )
+               VALUES
+               (
+               #{participantId}
+             , #{eventId}
+             , #{phoneNumber}
+             , #{participantNo}
+             , #{lottoNumbers}
+             , 'N'
+               )
+    </insert>
+
+    <!-- 특정 전화번호로 참가자 조회 -->
+    <select id="selectByPhone" parameterType="ParticipantSearchVo" resultMap="participantResultMap">
+        SELECT * FROM MF_PARTICIPANT
+         WHERE
+               EVENT_ID = #{eventId}
+           AND
+               PHONE_NUMBER = #{phoneNumber}
+    </select>
+
+</mapper>

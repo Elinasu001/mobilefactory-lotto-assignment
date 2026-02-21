@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobilefactory.lotto.admin.event.model.dao.AdminEventMapper">
+
+
+    <!-- 이벤트 생성 -->
+    <insert id="insertEvent" parameterType="Event">
+        <selectKey keyProperty="eventId" resultType="long" order="BEFORE">
+            SELECT SEQ_EVENT.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT
+          INTO
+               MF_EVENT
+               (
+               EVENT_ID
+             , EVENT_NAME
+             , START_DATE
+             , END_DATE
+             , ANNOUNCE_START
+             , ANNOUNCE_END
+             , MAX_PARTICIPANTS
+             , TOTAL_WINNERS
+             , FORCED_WINNER_PHONE
+             , STATUS
+             , CREATED_AT
+             , UPDATED_AT
+               )
+               VALUES
+               (
+               #{eventId}
+             , #{eventName}
+             , #{startDate}
+             , #{endDate}
+             , #{announceStart}
+             , #{announceEnd}
+             , #{maxParticipants}
+             , #{totalWinners}
+             , #{forcedWinnerPhone}
+             , #{status}
+             , SYSDATE
+             , SYSDATE
+               )
+    </insert>
+
+    <!-- 1등 지정 번호 업데이트 -->
+    <update id="updateForceWinnerPhone" parameterType="ForceWinnerGenerationRequest">
+        UPDATE 
+               MF_EVENT
+           SET 
+               FORCED_WINNER_PHONE = #{forcedWinnerPhone}
+             , UPDATED_AT = SYSDATE
+         WHERE 
+               EVENT_ID = #{eventId}
+    </update>
+
+
+
+</mapper>

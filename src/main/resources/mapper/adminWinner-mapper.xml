@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobilefactory.lotto.admin.winner.model.dao.AdminWinnerMapper">
+
+    <resultMap id="participantResultMap" type="com.mobilefactory.lotto.event.model.vo.Participant">
+        <id property="participantId" column="PARTICIPANT_ID"/>
+        <result property="eventId" column="EVENT_ID"/>
+        <result property="phoneNumber" column="PHONE_NUMBER"/>
+        <result property="participantNo" column="PARTICIPANT_NO"/>
+        <result property="lottoNumbers" column="LOTTO_NUMBERS"/>
+        <result property="isWinner" column="IS_WINNER"/>
+        <result property="prizeRank" column="PRIZE_RANK"/>
+        <result property="participatedAt" column="PARTICIPATED_AT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
+    <!-- 당첨자 존재 여부 확인 -->
+    <select id="existsWinners" parameterType="long" resultType="boolean">
+        SELECT 
+               CASE
+                    WHEN COUNT(*) &gt; 0 THEN 1
+                    ELSE 0
+                END
+          FROM 
+               MF_PARTICIPANT
+         WHERE 
+               EVENT_ID = #{eventId}
+           AND 
+               IS_WINNER = 'Y'
+    </select>
+
+    <!-- 당첨 번호 업데이트 -->
+    <update id="updateWinningNumbers" parameterType="EventUpdateVo">
+        UPDATE
+               MF_EVENT
+           SET
+               WINNING_NUMBERS = #{winningNumbers},
+               UPDATED_AT = SYSDATE
+         WHERE
+               EVENT_ID = #{eventId}
+    </update>
+
+
+
+    <!-- 참가자 번호 범위로 조회 -->
+    <select id="selectByParticipantNoRange" parameterType="ParticipantSearchVo" resultMap="participantResultMap">
+        SELECT * FROM MF_PARTICIPANT
+         WHERE 
+               EVENT_ID = #{eventId}
+           AND 
+               PARTICIPANT_NO BETWEEN #{startNo} AND #{endNo}
+           AND 
+               IS_WINNER = 'N'
+         ORDER 
+            BY 
+               DBMS_RANDOM.VALUE
+    </select>
+
+    <!-- 미당첨자 조회 -->
+    <select id="selectNonWinners" parameterType="long" resultMap="participantResultMap">
+        SELECT * FROM MF_PARTICIPANT
+         WHERE 
+               EVENT_ID = #{eventId}
+           AND 
+               IS_WINNER = 'N'
+         ORDER 
+            BY 
+               DBMS_RANDOM.VALUE
+    </select>
+
+    <!-- 당첨 정보 업데이트 -->
+    <update id="updateWinner" parameterType="ParticipantUpdateVo">
+        UPDATE
+               MF_PARTICIPANT
+           SET
+               IS_WINNER = 'Y'
+             , PRIZE_RANK = #{prizeRank}
+             , LOTTO_NUMBERS = #{lottoNumbers}
+         WHERE
+               PARTICIPANT_ID = #{participantId}
+    </update>
+
+    <!-- 이벤트 상태 업데이트 -->
+    <update id="updateEventStatus" parameterType="EventUpdateVo">
+        UPDATE 
+               MF_EVENT
+           SET 
+               STATUS = #{status}
+             , UPDATED_AT = SYSDATE
+         WHERE 
+               EVENT_ID = #{eventId}
+    </update>
+
+</mapper>
