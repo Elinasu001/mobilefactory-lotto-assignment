@@ -14,10 +14,10 @@ import com.mobilefactory.lotto.auth.model.vo.PhoneAuth;
 import com.mobilefactory.lotto.auth.model.vo.PhoneAuthSearchVo;
 import com.mobilefactory.lotto.common.exception.auth.InvalidAuthCodeException;
 import com.mobilefactory.lotto.common.exception.event.AlreadyParticipatedException;
-import com.mobilefactory.lotto.event.model.dao.EventMapper;
 import com.mobilefactory.lotto.event.model.dao.ParticipantMapper;
-import com.mobilefactory.lotto.event.model.service.EventService;
+import com.mobilefactory.lotto.event.model.vo.Event;
 import com.mobilefactory.lotto.event.model.vo.ParticipantSearchVo;
+import com.mobilefactory.lotto.event.util.EventValidator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final AuthMapper authMapper;
-    private final EventMapper eventMapper;
     private final ParticipantMapper participantMapper;
-    private final EventService eventService;
+    private final EventValidator eventValidator;
+
+
     /**
      * 인증번호 발송
      */
@@ -43,13 +44,13 @@ public class AuthServiceImpl implements AuthService {
         //log.info("요청 전화번호: {}", phoneNumber);
 
         // 1. 현재 진행중인 이벤트 조회 (공통 서비스 사용)
-        eventService.getActiveEvent(eventId);
-        //log.info("현재 진행중인 이벤트: {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
+        Event event = eventValidator.getActiveEvent(eventId);
+        //log.info("현재 진행중인 이벤트: {} (ID: {})", event.getEventName(), event.getEventId());
 
         // 2. 중복 참여 확인
         boolean alreadyParticipated = participantMapper.existsByEventAndPhone(
             ParticipantSearchVo.builder()
-                .eventId(eventId)
+                .eventId(event.getEventId())
                 .phoneNumber(phoneNumber)
                 .build()
         );

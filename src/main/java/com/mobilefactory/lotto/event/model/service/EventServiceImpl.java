@@ -10,9 +10,7 @@ import com.mobilefactory.lotto.auth.model.vo.PhoneAuth;
 import com.mobilefactory.lotto.auth.model.vo.PhoneAuthSearchVo;
 import com.mobilefactory.lotto.common.exception.auth.AuthRequiredException;
 import com.mobilefactory.lotto.common.exception.event.AlreadyParticipatedException;
-import com.mobilefactory.lotto.common.exception.event.EventNotFoundException;
 import com.mobilefactory.lotto.common.exception.event.ExceedMaxParticipantsException;
-import com.mobilefactory.lotto.event.model.dao.EventMapper;
 import com.mobilefactory.lotto.event.model.dao.ParticipantMapper;
 import com.mobilefactory.lotto.event.model.dto.EventPublicResponse;
 import com.mobilefactory.lotto.event.model.dto.ParticipateRequest;
@@ -20,6 +18,7 @@ import com.mobilefactory.lotto.event.model.dto.ParticipateResponse;
 import com.mobilefactory.lotto.event.model.vo.Event;
 import com.mobilefactory.lotto.event.model.vo.Participant;
 import com.mobilefactory.lotto.event.model.vo.ParticipantSearchVo;
+import com.mobilefactory.lotto.event.util.EventValidator;
 import com.mobilefactory.lotto.sms.model.dao.SmsLogMapper;
 import com.mobilefactory.lotto.sms.model.vo.SmsLog;
 import com.mobilefactory.lotto.util.LottoNumberGenerator;
@@ -32,10 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    private final EventMapper eventMapper;
     private final ParticipantMapper participantMapper;
     private final AuthMapper authMapper;
     private final SmsLogMapper smsLogMapper;
+    private final EventValidator eventValidator;
 
     /***
      * 이벤트 참여
@@ -64,14 +63,14 @@ public class EventServiceImpl implements EventService {
         //log.info("휴대폰 인증 완료: {}", phoneAuth);
 
         // 2. 현재 진행중인 이벤트 조회
-        Event activeEvent = getActiveEvent(eventId);
-        //log.info("현재 진행중인 이벤트: {} (ID: {})", activeEvent.getEventName(), activeEvent.getEventId());
+        Event event = eventValidator.getActiveEvent(eventId);
+        //log.info("현재 진행중인 이벤트: {} (ID: {})", event.getEventName(), event.getEventId());
 
 
         // 3. 중복 참여 재확인
         boolean alreadyParticipated = participantMapper.existsByEventAndPhone(
             ParticipantSearchVo.builder()
-                .eventId(eventId)
+                .eventId(event.getEventId())
                 .phoneNumber(phoneNumber)
                 .build()
         );
@@ -82,11 +81,11 @@ public class EventServiceImpl implements EventService {
         //log.info("중복 참여 여부 결과: {}", alreadyParticipated);
 
         // 4. 다음 참가자 순번 조회
-        Integer participantNo = participantMapper.getNextParticipantNo(eventId);
+        Integer participantNo = participantMapper.getNextParticipantNo(event.getEventId());
         //log.info("다음 참가자 순번: {}", participantNo);
 
         // 5. 정원 초과 확인
-        if (participantNo > activeEvent.getMaxParticipants()) {
+        if (participantNo > event.getMaxParticipants()) {
             throw new ExceedMaxParticipantsException("참여 정원이 마감되었습니다.");
         }
 
@@ -97,7 +96,7 @@ public class EventServiceImpl implements EventService {
 
         // 7. 참가자 등록
         Participant participant = Participant.builder()
-            .eventId(eventId)
+            .eventId(event.getEventId())
             .phoneNumber(phoneNumber)
             .participantNo(participantNo)
             .lottoNumbers(lottoNumbers)
@@ -127,28 +126,13 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * 진행중인 이벤트 조회
-     */
-    @Override
-    public Event getActiveEvent(Long eventId) {
-        Event activeEvent = eventMapper.selectActiveEvent(eventId);
-        if(activeEvent == null){
-            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
-        }
-        return activeEvent;
-    }
-
-    /**
      * 진행중인 이벤트 조회 - 민감 정보 제외
      */
     @Override
     public EventPublicResponse getPublicActiveEvent(Long eventId) {
 
         // 1. 이벤트 존재 확인
-        Event event = eventMapper.selectActiveEvent(eventId);
-        if(event == null){
-            throw new EventNotFoundException("진행중인 이벤트가 없습니다.");
-        }
+        Event event = eventValidator.getActiveEvent(eventId);
 
         // 2. 이벤트 상태에 따른 플래그 설정
         Date now = new Date();
