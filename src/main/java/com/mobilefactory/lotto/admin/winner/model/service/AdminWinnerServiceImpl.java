@@ -13,13 +13,12 @@ import com.mobilefactory.lotto.admin.winner.model.dto.GenerateWinnersRequest;
 import com.mobilefactory.lotto.admin.winner.model.dto.WinnerGenerationResponse;
 import com.mobilefactory.lotto.admin.winner.model.vo.EventUpdateVo;
 import com.mobilefactory.lotto.admin.winner.model.vo.ParticipantUpdateVo;
-import com.mobilefactory.lotto.common.exception.event.EventNotFoundException;
 import com.mobilefactory.lotto.common.exception.winner.ForcedWinnerNotFoundException;
 import com.mobilefactory.lotto.common.exception.winner.WinnerAlreadyGeneratedException;
-import com.mobilefactory.lotto.event.model.dao.EventMapper;
 import com.mobilefactory.lotto.event.model.vo.Event;
 import com.mobilefactory.lotto.event.model.vo.Participant;
 import com.mobilefactory.lotto.event.model.vo.ParticipantSearchVo;
+import com.mobilefactory.lotto.event.util.EventValidator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AdminWinnerServiceImpl implements AdminWinnerService {
 
-    private final EventMapper eventMapper;
     private final AdminWinnerMapper adminWinnerMapper;
+    private final EventValidator eventValidator;
 
     @Override
     @Transactional
@@ -44,14 +43,11 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         //log.info("1등 지정 번호: {}", forcedWinnerPhone);
 
         // 1. 마감된 이벤트 조회
-        Event closedEvent  = eventMapper.selectClosedEvent(eventId);
-        if(closedEvent == null){
-            throw new EventNotFoundException("마감된 이벤트가 없습니다.");
-        }
-        //log.info("현재 마감된 이벤트 : {} (ID: {})", closedEvent.getEventName(), closedEvent.getEventId());
+        Event event = eventValidator.getClosedEvent(eventId);
+        //log.info("현재 마감된 이벤트 : {} (ID: {})", event.getEventName(), event.getEventId());
 
         // 2. 이미 당첨자가 생성되었는지 확인
-        boolean winnersExist = adminWinnerMapper.existsWinners(eventId);
+        boolean winnersExist = adminWinnerMapper.existsWinners(event.getEventId());
 
         if(winnersExist){
             throw new WinnerAlreadyGeneratedException("이미 당첨자가 생성되었습니다.");
@@ -64,7 +60,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         // 3. 1등 지정 번호 참가자 번호인지 조회
         Participant rank1Winner = adminWinnerMapper.selectByPhone(
             ParticipantSearchVo.builder()
-                .eventId(eventId)
+                .eventId(event.getEventId())
                 .phoneNumber(forcedWinnerPhone)
                 .build()
         );
@@ -81,7 +77,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         // 5. 이벤트 테이블에 정답 번호 저장
         int updatedWinningNumbers = adminWinnerMapper.updateWinningNumbers(
             EventUpdateVo.builder()
-                .eventId(eventId)
+                .eventId(event.getEventId())
                 .winningNumbers(winningNumbers)
                 .build()
         );
@@ -115,7 +111,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         //log.info("== 2등 선정 ==");
         List<Participant> rank2Candidates  = adminWinnerMapper.selectByParticipantNoRange(
             ParticipantSearchVo.builder()
-                .eventId(eventId)
+                .eventId(event.getEventId())
                 .startNo(2000)
                 .endNo(7000)
                 .build()
@@ -152,7 +148,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         //log.info("== 3등 선정 ==");
         List<Participant> rank3Candidates = adminWinnerMapper.selectByParticipantNoRange(
             ParticipantSearchVo.builder()
-                .eventId(eventId)
+                .eventId(event.getEventId())
                 .startNo(1000)
                 .endNo(8000)
                 .build()
@@ -185,7 +181,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
 
         // 9. 4등 선정
         //log.info("== 4등 선정 ==");
-        List<Participant> rank4Candidates = adminWinnerMapper.selectNonWinners(eventId);
+        List<Participant> rank4Candidates = adminWinnerMapper.selectNonWinners(event.getEventId());
         //log.info("4등 후보자 수: {}", rank4Candidates.size());
 
         // 9-1. 4등 3자리 이상 일치 후보자 필터링
@@ -222,7 +218,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         // 10. 이벤트 상태  ANNOUNCED로 변경
         int updatedStatus = adminWinnerMapper.updateEventStatus(
             EventUpdateVo.builder()
-                .eventId(eventId)
+                .eventId(event.getEventId())
                 .status("ANNOUNCED")
                 .build()
         );
@@ -231,7 +227,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         }
 
         WinnerGenerationResponse response = WinnerGenerationResponse.builder()
-            .eventId(eventId)
+            .eventId(event.getEventId())
             .totalWinners(rank1Count + rank2Count + rank3Count + rank4Count)
             .rank1Count(rank1Count)
             .rank2Count(rank2Count)

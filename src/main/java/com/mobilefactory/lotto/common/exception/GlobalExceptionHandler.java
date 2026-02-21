@@ -135,6 +135,13 @@ public class GlobalExceptionHandler {
     }
 
     /* ===================== 공통 예외 ===================== */
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ResponseData<Object>> handleIllegalStateException(IllegalStateException e) {
+        log.warn("잘못된 상태: {}", e.getMessage());
+        return ResponseData.failure(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ResponseData<Object>> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("잘못된 인자: {}", e.getMessage());
