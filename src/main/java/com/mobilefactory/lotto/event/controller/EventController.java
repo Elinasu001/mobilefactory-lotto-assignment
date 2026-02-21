@@ -43,7 +43,8 @@ public class EventController {
      */
     @GetMapping("/{eventId}")
     public ResponseEntity<ResponseData<EventPublicResponse>> getPublicActiveEvent(
-        @PathVariable("eventId") Long eventId) {
+        @PathVariable("eventId") Long eventId
+    ) {
         EventPublicResponse activeEvent = eventService.getPublicActiveEvent(eventId);
         return ResponseData.ok(activeEvent, "현재 진행중인 이벤트입니다.");
     }
