@@ -10,10 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mobilefactory.lotto.auth.model.dao.AuthMapper;
 import com.mobilefactory.lotto.auth.model.dto.AuthResponse;
 import com.mobilefactory.lotto.auth.model.dto.SendAuthCodeRequest;
+import com.mobilefactory.lotto.auth.model.dto.VerifyAuthCodeRequest;
 import com.mobilefactory.lotto.auth.model.vo.PhoneAuth;
 import com.mobilefactory.lotto.auth.model.vo.PhoneAuthSearchVo;
 import com.mobilefactory.lotto.common.exception.auth.InvalidAuthCodeException;
 import com.mobilefactory.lotto.common.exception.event.AlreadyParticipatedException;
+import com.mobilefactory.lotto.common.exception.result.ParticipantNotFoundException;
 import com.mobilefactory.lotto.event.model.dao.ParticipantMapper;
 import com.mobilefactory.lotto.event.model.vo.Event;
 import com.mobilefactory.lotto.event.model.vo.ParticipantSearchVo;
@@ -30,22 +32,18 @@ public class AuthServiceImpl implements AuthService {
     private final ParticipantMapper participantMapper;
     private final EventValidator eventValidator;
 
-
     /**
-     * 인증번호 발송
+     * 참여용 인증번호 발송
      */
     @Override
     @Transactional
-    public AuthResponse sendAuthCode(SendAuthCodeRequest request){
+    public AuthResponse sendAuthCodeForParticipate(SendAuthCodeRequest request) {
 
         Long eventId = request.getEventId();
         String phoneNumber = request.getPhoneNumber();
-        //log.info("== 인증번호 발송 시작 ==");
-        //log.info("요청 전화번호: {}", phoneNumber);
 
-        // 1. 현재 진행중인 이벤트 조회 (공통 서비스 사용)
+        // 1. ACTIVE 이벤트 조회
         Event event = eventValidator.getActiveEvent(eventId);
-        //log.info("현재 진행중인 이벤트: {} (ID: {})", event.getEventName(), event.getEventId());
 
         // 2. 중복 참여 확인
         boolean alreadyParticipated = participantMapper.existsByEventAndPhone(
@@ -54,55 +52,85 @@ public class AuthServiceImpl implements AuthService {
                 .phoneNumber(phoneNumber)
                 .build()
         );
-        if(alreadyParticipated){
+
+        if (alreadyParticipated) {
             throw new AlreadyParticipatedException("이미 참여한 번호입니다.");
         }
         //log.info("중복 참여 여부 결과: {}", alreadyParticipated);
 
-        // 3. 인증번호 생성
+        // 3. 인증번호 발송 (공통 로직)
+        return sendAuthCode(phoneNumber);
+    }
+
+    /**
+     * 결과 조회용 인증번호 발송
+     */
+    @Override
+    @Transactional
+    public AuthResponse sendAuthCodeForResult(SendAuthCodeRequest request) {
+
+        Long eventId = request.getEventId();
+        String phoneNumber = request.getPhoneNumber();
+
+        // 1. ANNOUNCED 이벤트 조회
+        Event event = eventValidator.getAnnouncedEvent(eventId);
+
+        // 2. 참여 이력 확인
+        boolean participated = participantMapper.existsByEventAndPhone(
+            ParticipantSearchVo.builder()
+                .eventId(event.getEventId())
+                .phoneNumber(phoneNumber)
+                .build()
+        );
+        if (!participated) {
+            throw new ParticipantNotFoundException("참여 이력이 없습니다.");
+        }
+        //log.info("참여 이력 여부 결과: {}", participated);
+
+        // 3. 인증번호 발송 (공통 로직)
+        return sendAuthCode(phoneNumber);
+    }
+
+    /**
+     * 인증번호 발송 공통 로직
+     */
+    private AuthResponse sendAuthCode(String phoneNumber) {
+
+        // 인증번호 생성
         String authCode = generateAuthCode();
-        //log.info("생성된 인증번호: {}", authCode);
 
-        // 4. 만료 시간 (3분 후)
+        // 만료 시간 (3분 후)
         Date expiredAt = getExpiredAt(3);
-        //log.info("인증번호 만료 시간: {}", expiredAt);
 
-        // 5. DB 저장
+        // DB 저장
         PhoneAuth phoneAuth = PhoneAuth.builder()
             .phoneNumber(phoneNumber)
             .authCode(authCode)
             .isVerified("N")
             .expiredAt(expiredAt)
             .build();
-
         //log.info("저장할 PhoneAuth 객체: {}", phoneAuth);
 
         int insertResult = authMapper.insertPhoneAuth(phoneAuth);
-        //log.info("인증 정보 저장 결과: {}", insertResult);
-        //log.info("저장 후 authId: {}", phoneAuth.getAuthId());
-        if(insertResult != 1){
+        if (insertResult != 1) {
             throw new RuntimeException("인증 정보 저장에 실패했습니다.");
         }
-        //log.info(" DB 저장 성공");
 
-        // 6. Mock SMS
+        // Mock SMS
         sendMockSms(phoneNumber, authCode);
 
-        // 7. 응답 생성
-        AuthResponse response = AuthResponse.builder()
+        // 응답 생성
+        return AuthResponse.builder()
             .authId(phoneAuth.getAuthId())
             .isVerified(false)
             .expiredAt(expiredAt)
             .build();
-
-        //log.info("응답 데이터: {}", response);
-
-        return response;
     }
+
 
     @Override
     @Transactional
-    public AuthResponse verifyAuthCode(SendAuthCodeRequest request) {
+    public AuthResponse verifyAuthCode(VerifyAuthCodeRequest request) {
 
         //log.info("== 인증번호 검증 시작 ==");
         //log.info("전화번호: {}, 인증번호: {}", request.getPhoneNumber(), request.getAuthCode());
@@ -114,7 +142,7 @@ public class AuthServiceImpl implements AuthService {
             .build();
         //log.info("검색 조건: {}", searchVo);
 
-        PhoneAuth phoneAuth = authMapper.selectByPhoneAndCode(searchVo);
+        PhoneAuth phoneAuth = authMapper.selectVerifiedByPhoneAndCode(searchVo);
         //log.info("조회 결과: {}", phoneAuth);
 
         // 2. 인증번호 불일치

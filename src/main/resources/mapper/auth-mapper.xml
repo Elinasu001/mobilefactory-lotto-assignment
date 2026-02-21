@@ -39,43 +39,46 @@
                )
     </insert>
 
-    <!-- 전화번호 + 인증번호로 조회 -->
-    <select id="selectByPhoneAndCode"
-            parameterType="PhoneAuthSearchVo"
-            resultMap="phoneAuthResultMap">
-        SELECT * FROM MF_PHONE_AUTH
-         WHERE 
-               PHONE_NUMBER = #{phoneNumber}
-           AND 
-               AUTH_CODE = #{authCode}
-           AND 
-               EXPIRED_AT &gt; SYSDATE
-           AND 
-               IS_VERIFIED = 'N'
-         ORDER 
-            BY 
-               CREATED_AT DESC
-        FETCH FIRST 1 ROW ONLY
-    </select>
-
-        <!-- 전화번호 + 인증번호로 조회 (인증 완료된 경우) -->
+    <!-- 전화번호 + 인증번호로 조회 (검증용) -->
     <select id="selectVerifiedByPhoneAndCode"
             parameterType="PhoneAuthSearchVo"
             resultMap="phoneAuthResultMap">
         SELECT * FROM MF_PHONE_AUTH
-         WHERE 
+         WHERE
                PHONE_NUMBER = #{phoneNumber}
-           AND 
+           AND
                AUTH_CODE = #{authCode}
-           AND 
+           AND
                EXPIRED_AT &gt; SYSDATE
-           AND 
-               IS_VERIFIED = 'Y'
-         ORDER 
-            BY 
+           AND
+               IS_VERIFIED = 'N'
+         ORDER
+            BY
                CREATED_AT DESC
         FETCH FIRST 1 ROW ONLY
     </select>
+
+    <!-- 전화번호 + 인증번호로 조회 (참여/결과조회용)-->
+    <select id="selectByPhoneAndCode"
+            parameterType="PhoneAuthSearchVo"
+            resultMap="phoneAuthResultMap">
+        SELECT * FROM MF_PHONE_AUTH
+         WHERE
+               PHONE_NUMBER = #{phoneNumber}
+           AND
+               AUTH_CODE = #{authCode}
+           AND
+               EXPIRED_AT &gt; SYSDATE
+           AND
+               IS_VERIFIED = 'Y'
+         ORDER
+            BY
+               CREATED_AT DESC
+        FETCH FIRST 1 ROW ONLY
+    </select>
+
+
+
 
     <!-- 인증 완료 처리 -->
     <update id="updateVerified" parameterType="long">
