@@ -15,6 +15,7 @@ import com.mobilefactory.lotto.admin.winner.model.vo.EventUpdateVo;
 import com.mobilefactory.lotto.admin.winner.model.vo.ParticipantUpdateVo;
 import com.mobilefactory.lotto.common.exception.winner.ForcedWinnerNotFoundException;
 import com.mobilefactory.lotto.common.exception.winner.WinnerAlreadyGeneratedException;
+import com.mobilefactory.lotto.event.model.dao.ParticipantMapper;
 import com.mobilefactory.lotto.event.model.vo.Event;
 import com.mobilefactory.lotto.event.model.vo.Participant;
 import com.mobilefactory.lotto.event.model.vo.ParticipantSearchVo;
@@ -30,6 +31,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
 
     private final AdminWinnerMapper adminWinnerMapper;
     private final EventValidator eventValidator;
+    private final ParticipantMapper participantMapper;
 
     @Override
     @Transactional
@@ -58,7 +60,7 @@ public class AdminWinnerServiceImpl implements AdminWinnerService {
         //log.info("== 1등 지정 번호 조회 ==");
 
         // 3. 1등 지정 번호 참가자 번호인지 조회
-        Participant rank1Winner = adminWinnerMapper.selectByPhone(
+        Participant rank1Winner = participantMapper.selectByPhone(
             ParticipantSearchVo.builder()
                 .eventId(event.getEventId())
                 .phoneNumber(forcedWinnerPhone)

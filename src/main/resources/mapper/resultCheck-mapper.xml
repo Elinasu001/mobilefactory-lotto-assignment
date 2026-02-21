@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobilefactory.lotto.event.model.dao.ResultCheckMapper">
+
+    <resultMap id="resultCheckResultMap" type="com.mobilefactory.lotto.event.model.vo.ResultCheck">
+        <id property="checkId" column="CHECK_ID"/>
+        <result property="participantId" column="PARTICIPANT_ID"/>
+        <result property="checkedAt" column="CHECKED_AT"/>
+        <result property="checkCount" column="CHECK_COUNT"/>
+        <result property="checkedAt" column="CHECKED_AT"/>
+    </resultMap>
+
+    <select id="selectByParticipantId" parameterType="long" resultMap="resultCheckResultMap">
+        SELECT * FROM MF_RESULT_CHECK
+         WHERE 
+               PARTICIPANT_ID = #{participantId}
+    </select>
+
+
+    <!-- 확인 이력 생성 -->
+    <insert id="insertResultCheck" parameterType="ResultCheck">
+        <selectKey keyProperty="checkId" resultType="long" order="BEFORE">
+            SELECT SEQ_RESULT_CHECK.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT
+          INTO
+               MF_RESULT_CHECK
+               (
+               CHECK_ID
+             , PARTICIPANT_ID
+             , CHECK_COUNT
+             , CHECKED_AT
+               )
+               VALUES
+               (
+               #{checkId}
+             , #{participantId}
+             , #{checkCount}
+             , SYSDATE
+               )
+    </insert>
+
+
+    <!-- 확인 횟수 업데이트 -->
+    <update id="updateCheckCount" parameterType="ResultCheck">
+        UPDATE 
+               MF_RESULT_CHECK
+           SET 
+               CHECK_COUNT = #{checkCount}
+             , CHECKED_AT = SYSDATE
+         WHERE 
+               PARTICIPANT_ID = #{participantId}
+    </update>
+
+
+</mapper>

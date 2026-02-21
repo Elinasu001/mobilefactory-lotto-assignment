@@ -67,4 +67,13 @@
                )
     </insert>
 
+    <!-- 특정 전화번호로 참가자 조회 -->
+    <select id="selectByPhone" parameterType="ParticipantSearchVo" resultMap="participantResultMap">
+        SELECT * FROM MF_PARTICIPANT
+         WHERE
+               EVENT_ID = #{eventId}
+           AND
+               PHONE_NUMBER = #{phoneNumber}
+    </select>
+
 </mapper>

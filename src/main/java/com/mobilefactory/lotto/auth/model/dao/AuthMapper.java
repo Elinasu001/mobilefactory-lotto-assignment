@@ -11,11 +11,11 @@ public interface AuthMapper {
     // 인증번호 저장
     int insertPhoneAuth(PhoneAuth phoneAuth);
 
-    // 전화번호 + 인증번호로 조회 (단일 VO로)
-    PhoneAuth selectByPhoneAndCode(PhoneAuthSearchVo searchVo);
-
-    // 전화번호 + 인증번호로 조회 (인증 완료된 경우)
+    // 전화번호 + 인증번호로 조회(검증용)
     PhoneAuth selectVerifiedByPhoneAndCode(PhoneAuthSearchVo searchVo);
+
+    // 전화번호 + 인증번호로 조회(참여/결과조회용)
+    PhoneAuth selectByPhoneAndCode(PhoneAuthSearchVo searchVo);
 
     // 인증 완료 처리
     int updateVerified(Long authId);

@@ -47,20 +47,21 @@ public class EventServiceImpl implements EventService {
         Long eventId = request.getEventId();
         String phoneNumber = request.getPhoneNumber();
         String authCode = request.getAuthCode();
+        //log.info("이벤트 ID: {}, 전화번호: {}", eventId, phoneNumber);
 
-        // 1. 인증 완료 여부 확인
-        PhoneAuth phoneAuth = authMapper.selectVerifiedByPhoneAndCode(
+        // 1. 인증 확인
+        PhoneAuth recentAuth = authMapper.selectByPhoneAndCode(
             PhoneAuthSearchVo.builder()
                 .phoneNumber(phoneNumber)
                 .authCode(authCode)
                 .build()
         );
 
-        if(phoneAuth == null || !"Y".equals(phoneAuth.getIsVerified())){
-            throw new AuthRequiredException("휴대폰 인증이 필요합니다.");
+        if (recentAuth == null) {
+            throw new AuthRequiredException("본인 인증이 필요합니다.");
         }
 
-        //log.info("휴대폰 인증 완료: {}", phoneAuth);
+        //log.info("인증 확인 완료: authId: {} ", recentAuth.getAuthId());
 
         // 2. 현재 진행중인 이벤트 조회
         Event event = eventValidator.getActiveEvent(eventId);

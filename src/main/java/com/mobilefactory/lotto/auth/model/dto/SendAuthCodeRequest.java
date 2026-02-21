@@ -16,6 +16,4 @@ public class SendAuthCodeRequest {
     )
     private String phoneNumber;
 
-    // 인증번호 검증 시 사용 (발송 시에는 null)
-    private String authCode;
 }
