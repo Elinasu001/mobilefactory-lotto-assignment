@@ -19,7 +19,7 @@ public interface AdminWinnerMapper {
     boolean existsWinners(Long eventId);
 
     // 1등 지정 번호로 참가자 조회
-    Participant selectByPhone(ParticipantSearchVo searchVo);
+    //Participant selectByPhone(ParticipantSearchVo searchVo);
 
     // 참가자 번호 범위로 조회 (2등, 3등)
     List<Participant> selectByParticipantNoRange(ParticipantSearchVo searchVo);

@@ -13,4 +13,8 @@ public interface ParticipantMapper {
     int getNextParticipantNo(Long eventId);
     // 참가자 정보 삽입
     int insertParticipant(Participant participant);
+    // 참가자 조회
+    //Participant selectByEventAndPhone(ParticipantSearchVo searchVo);
+    Participant selectByPhone(ParticipantSearchVo searchVo);
+
 }
