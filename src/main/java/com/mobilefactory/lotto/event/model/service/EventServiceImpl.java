@@ -1,7 +1,5 @@
 package com.mobilefactory.lotto.event.model.service;
 
-import java.util.Date;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,42 +129,17 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     public EventPublicResponse getPublicActiveEvent(Long eventId) {
-
-        // 1. 이벤트 존재 확인
-        Event event = eventValidator.getActiveEvent(eventId);
-
-        // 2. 이벤트 상태에 따른 플래그 설정
-        Date now = new Date();
-
-        // 이벤트 진행 여부 (진행중이면 true)
-        boolean isEventActive =
-            "ACTIVE".equals(event.getStatus())
-            && now.after(event.getStartDate())
-            && now.before(event.getEndDate());
-
-
-        // 당첨자 발표 기간 여부 (당첨자 발표 기간 중이면 true)
-        boolean isResultPeriod =
-            "ANNOUNCED".equals(event.getStatus())
-            && now.after(event.getAnnounceStart())
-            && now.before(event.getAnnounceEnd());
-
-        boolean autoOpenPopup = isEventActive || isResultPeriod;
-
+        // 1. 진행중인 이벤트 조회
+        Event event = eventValidator.getEventById(eventId);
         return EventPublicResponse.builder()
-            .eventId(event.getEventId())
-            .eventName(event.getEventName())
-            .startDate(event.getStartDate())
-            .endDate(event.getEndDate())
-            .announceStart(event.getAnnounceStart())
-            .announceEnd(event.getAnnounceEnd())
-            .maxParticipants(event.getMaxParticipants())
-            .totalWinners(event.getTotalWinners())
-            .status(event.getStatus())
-            .eventActive(isEventActive)
-            .resultPeriod(isResultPeriod)
-            .autoOpenPopup(autoOpenPopup)
-            .build();
+                .eventId(event.getEventId())
+                .eventName(event.getEventName())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .announceStart(event.getAnnounceStart())
+                .announceEnd(event.getAnnounceEnd())
+                .status(event.getStatus())
+                .build();
     }
 
     // Mock SMS 발송 + DB 저장
