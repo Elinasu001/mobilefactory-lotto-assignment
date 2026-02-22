@@ -29,7 +29,6 @@ SMS 인증 후 로또 번호를 발급받고, 발표 기간에 당첨 결과를 
 
 #### 미구현
 
-- 현재 진행 이벤트 자동 조회 API (`GET /api/events/active`, `GET /api/events/announced`)
 - 발표 10일 경과 미확인 당첨자 SMS 발송 스케줄러
 
 <br>
