@@ -12,6 +12,7 @@
         <result property="checkedAt" column="CHECKED_AT"/>
     </resultMap>
 
+    <!-- 참가자 ID로 결과 확인 이력 조회 -->
     <select id="selectByParticipantId" parameterType="long" resultMap="resultCheckResultMap">
         SELECT * FROM MF_RESULT_CHECK
          WHERE 

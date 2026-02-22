@@ -16,6 +16,7 @@
         <result property="createdAt" column="CREATED_AT"/>
     </resultMap>
 
+    <!-- 특정 이벤트와 전화번호로 참가자 존재 여부 확인 -->
     <select id="existsByEventAndPhone"
             parameterType="ParticipantSearchVo"
             resultType="boolean">
@@ -32,6 +33,7 @@
           FROM DUAL
     </select>
 
+    <!-- 다음 참가자 번호 조회 -->
     <select id="getNextParticipantNo" parameterType="long" resultType="int">
         SELECT 
                NVL(MAX(PARTICIPANT_NO), 0) + 1
@@ -41,6 +43,7 @@
                EVENT_ID = #{eventId}
     </select>
 
+    <!-- 참가자 등록 -->
     <insert id="insertParticipant" parameterType="Participant">
         <selectKey keyProperty="participantId" resultType="long" order="BEFORE">
             SELECT SEQ_PARTICIPANT.NEXTVAL FROM DUAL
