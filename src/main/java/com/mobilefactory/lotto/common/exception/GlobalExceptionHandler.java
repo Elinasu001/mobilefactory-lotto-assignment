@@ -1,13 +1,7 @@
 package com.mobilefactory.lotto.common.exception;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -115,25 +109,6 @@ public class GlobalExceptionHandler {
         return ResponseData.failure(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    /* ===================== Validation ===================== */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ResponseData<Object>> handleValidationException(
-            MethodArgumentNotValidException e) {
-
-        Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        log.warn("입력값 검증 실패: {}", errors);
-        return ResponseData.failure(
-                "입력값이 올바르지 않습니다: " + errors,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
     /* ===================== 공통 예외 ===================== */
 
     @ExceptionHandler(IllegalStateException.class)
@@ -146,12 +121,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseData<Object>> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("잘못된 인자: {}", e.getMessage());
         return ResponseData.failure(e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<ResponseData<Object>> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException e) {
-        log.warn("지원하지 않는 미디어 타입: {}", e.getMessage());
-        return ResponseData.failure("지원하지 않는 미디어 타입입니다.", HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     @ExceptionHandler(RuntimeException.class)
