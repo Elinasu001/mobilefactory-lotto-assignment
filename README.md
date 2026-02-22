@@ -36,6 +36,6 @@ SMS 인증 후 로또 번호를 발급받고, 발표 기간에 당첨 결과를 
 
 ## 문서
 
-- [API 명세서](docs/[로또이벤트_API명세서.pdf](https://github.com/user-attachments/files/25463519/_API.pdf))
-- [DB 설계서](docs/[로또이벤트_DB설계.pdf](https://github.com/user-attachments/files/25463556/_DB.pdf))
+- [API 명세서](docs/[로또이벤트_API명세서.pdf](https://github.com/user-attachments/files/25463519/_API.pdf)?raw=true)
+- [DB 설계서](docs/[로또이벤트_DB설계.pdf](https://github.com/user-attachments/files/25463556/_DB.pdf)?raw=true)
 - Swagger UI : `http://localhost:8080/swagger-ui/index.html`
